@@ -12,6 +12,7 @@ def vapi_webhook():
             customer_number = call_data.get("customer", {}).get("number")
             transcript = call_data.get("transcript")
             summary = call_data.get("summary")
+            recording_url = call_data.get("recordingUrl")
             
             if not customer_number:
                 return "No customer number found"
@@ -28,7 +29,8 @@ def vapi_webhook():
                     "lead": lead_name,
                     "call_summary": summary,
                     "call_transcript": transcript,
-                    "call_duration": call_data.get("duration", 0)
+                    "call_duration": call_data.get("duration", 0),
+                    "recording_url": recording_url
                 })
                 log.insert(ignore_permissions=True)
                 
@@ -39,5 +41,3 @@ def vapi_webhook():
     except Exception as e:
         frappe.log_error(title="Vapi Webhook Error", message=frappe.get_traceback())
         return "Error"
-
-
