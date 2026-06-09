@@ -1,0 +1,18 @@
+﻿include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include callpilot_ai *.css
+recursive-include callpilot_ai *.csv
+recursive-include callpilot_ai *.html
+recursive-include callpilot_ai *.ico
+recursive-include callpilot_ai *.js
+recursive-include callpilot_ai *.json
+recursive-include callpilot_ai *.md
+recursive-include callpilot_ai *.png
+recursive-include callpilot_ai *.py
+recursive-include callpilot_ai *.svg
+recursive-include callpilot_ai *.txt
+recursive-exclude callpilot_ai *.pyc
