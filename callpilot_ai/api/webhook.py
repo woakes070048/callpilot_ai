@@ -1,4 +1,4 @@
-﻿import frappe
+import frappe
 import json
 
 @frappe.whitelist(allow_guest=True)

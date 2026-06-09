@@ -1,2 +1,2 @@
-﻿# CallPilot AI
+# CallPilot AI
 

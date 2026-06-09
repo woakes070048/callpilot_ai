@@ -1,4 +1,4 @@
-﻿[project]
+[project]
 name = "callpilot_ai"
 authors = [
     { name = "Nexgen", email = "nexgen@example.com"}
