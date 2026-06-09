@@ -24,7 +24,7 @@ def vapi_webhook():
                 lead_name = leads[0].name
                 
                 log = frappe.get_doc({
-                    "doctype": "Call Log",
+                    "doctype": "CallPilot Log",
                     "lead": lead_name,
                     "call_summary": summary,
                     "call_transcript": transcript,
@@ -39,4 +39,5 @@ def vapi_webhook():
     except Exception as e:
         frappe.log_error(title="Vapi Webhook Error", message=frappe.get_traceback())
         return "Error"
+
 

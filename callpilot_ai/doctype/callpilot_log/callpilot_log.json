@@ -39,7 +39,7 @@
  "modified": "2024-06-01 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "CallPilot AI",
- "name": "Call Log",
+ "name": "CallPilot Log",
  "owner": "Administrator",
  "permissions": [
   {
