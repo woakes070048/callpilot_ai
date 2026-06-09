@@ -1,4 +1,4 @@
-import frappe
+﻿import frappe
 import json
 
 @frappe.whitelist(allow_guest=True)
@@ -39,3 +39,4 @@ def vapi_webhook():
     except Exception as e:
         frappe.log_error(title="Vapi Webhook Error", message=frappe.get_traceback())
         return "Error"
+
