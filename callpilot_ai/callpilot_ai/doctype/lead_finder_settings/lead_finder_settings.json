@@ -10,7 +10,9 @@
                         "apify_source_platform",
                         "apify_api_key",
                         "llm_provider",
-                        "llm_api_key"
+                        "llm_api_key",
+                        "bolna_api_key",
+                        "bolna_agent_id"
                     ],
     "fields":  [
                    {
@@ -44,6 +46,16 @@
                        "fieldname":  "llm_api_key",
                        "fieldtype":  "Small Text",
                        "label":  "LLM API Key"
+                   },
+                   {
+                       "fieldtype":  "Small Text",
+                       "label":  "Bolna API Key",
+                       "fieldname":  "bolna_api_key"
+                   },
+                   {
+                       "fieldtype":  "Data",
+                       "label":  "Bolna Agent ID",
+                       "fieldname":  "bolna_agent_id"
                    }
                ],
     "issingle":  1,
