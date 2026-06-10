@@ -34,21 +34,21 @@ def run_scraper(campaign_name):
         
     except Exception as e:
         frappe.db.set_value("Lead Finder Campaign", campaign_name, "status", "Failed")
+        campaign.add_comment("Comment", text=f"**Error during scraping:** {str(e)}")
         frappe.db.commit()
         frappe.log_error(title="Scraper Error", message=str(e))
 
 def run_apify_scraper(query, limit, api_key):
     if not api_key:
-        raise Exception("Apify API Key is missing in Settings.")
+        raise Exception("Apify API Key is missing in Settings. Please add it or switch to Built-in Scraper.")
         
     url = f"https://api.apify.com/v2/acts/compass~google-maps-scraper/runs?token={api_key}"
-    payload = {
-        "searchStringsArray": [query],
-        "maxCrawledPlacesPerSearch": limit,
-        "language": "en"
-    }
-    
+    payload = {"searchStringsArray": [query], "maxCrawledPlacesPerSearch": limit, "language": "en"}
     run_res = requests.post(url, json=payload).json()
+    
+    if "error" in run_res:
+        raise Exception(f"Apify Error: {run_res['error']['message']}")
+        
     run_id = run_res.get("data", {}).get("id")
     dataset_id = run_res.get("data", {}).get("defaultDatasetId")
     
@@ -67,27 +67,27 @@ def run_apify_scraper(query, limit, api_key):
     for item in items:
         if item.get("phone") or item.get("phoneUnformatted"):
             leads.append({
-                "company_name": item.get("title"),
+                "company_name": item.get("title") or "Unknown",
                 "phone": item.get("phoneUnformatted") or item.get("phone"),
-                "website": item.get("website"),
-                "address": item.get("address")
+                "website": item.get("website")
             })
     return leads
 
 def run_builtin_scraper(query, limit):
     url = "https://nominatim.openstreetmap.org/search"
-    params = {
-        "q": query,
-        "format": "json",
-        "addressdetails": 1,
-        "extratags": 1,
-        "limit": limit
-    }
+    params = {"q": query, "format": "json", "addressdetails": 1, "extratags": 1, "limit": limit}
     headers = {"User-Agent": "CallPilotAI/1.0"}
-    res = requests.get(url, params=params, headers=headers).json()
+    res = requests.get(url, params=params, headers=headers)
+    
+    if res.status_code != 200:
+        raise Exception("Built-in Scraper Error: Map API rejected the request.")
+        
+    res_data = res.json()
+    if not isinstance(res_data, list):
+        raise Exception("Built-in Scraper Error: Unexpected response format from Map API.")
     
     leads = []
-    for item in res:
+    for item in res_data:
         extratags = item.get("extratags", {})
         phone = extratags.get("phone") or extratags.get("contact:phone")
         website = extratags.get("website") or extratags.get("contact:website")
@@ -96,7 +96,6 @@ def run_builtin_scraper(query, limit):
             leads.append({
                 "company_name": item.get("name") or "Unknown Business",
                 "phone": phone,
-                "website": website,
-                "address": item.get("display_name")
+                "website": website
             })
     return leads
