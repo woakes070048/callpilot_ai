@@ -6,11 +6,11 @@ import time
 def trigger_scrape(campaign_name):
     frappe.enqueue(
         "callpilot_ai.api.scraper.run_scraper",
-        queue="long",
+        queue="default",
         timeout=3600,
         campaign_name=campaign_name
     )
-    return "Scraping Job Queued in Background"
+    return "Scraping Job Queued"
 
 def run_scraper(campaign_name):
     campaign = frappe.get_doc("Lead Finder Campaign", campaign_name)
@@ -29,7 +29,6 @@ def run_scraper(campaign_name):
         frappe.db.set_value("Lead Finder Campaign", campaign_name, "status", "Analyzing")
         frappe.db.commit()
         
-        # Pass to Analyzer
         from callpilot_ai.api.analyzer import run_analyzer
         run_analyzer(campaign_name, scraped_leads)
         
@@ -42,7 +41,6 @@ def run_apify_scraper(query, limit, api_key):
     if not api_key:
         raise Exception("Apify API Key is missing in Settings.")
         
-    # Trigger Apify Google Maps Scraper Actor
     url = f"https://api.apify.com/v2/acts/compass~google-maps-scraper/runs?token={api_key}"
     payload = {
         "searchStringsArray": [query],
@@ -54,7 +52,6 @@ def run_apify_scraper(query, limit, api_key):
     run_id = run_res.get("data", {}).get("id")
     dataset_id = run_res.get("data", {}).get("defaultDatasetId")
     
-    # Poll until finished
     while True:
         status_url = f"https://api.apify.com/v2/actor-runs/{run_id}?token={api_key}"
         status_res = requests.get(status_url).json()
@@ -63,7 +60,6 @@ def run_apify_scraper(query, limit, api_key):
             break
         time.sleep(10)
         
-    # Fetch results
     dataset_url = f"https://api.apify.com/v2/datasets/{dataset_id}/items?token={api_key}"
     items = requests.get(dataset_url).json()
     
@@ -79,7 +75,6 @@ def run_apify_scraper(query, limit, api_key):
     return leads
 
 def run_builtin_scraper(query, limit):
-    # Fallback built-in scraper using free OpenStreetMap Nominatim API
     url = "https://nominatim.openstreetmap.org/search"
     params = {
         "q": query,
