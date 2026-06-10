@@ -1,0 +1,60 @@
+{
+ "actions": [],
+ "creation": "2024-06-10 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "search_query",
+  "target_quantity",
+  "qualification_prompt",
+  "status"
+ ],
+ "fields": [
+  {
+   "fieldname": "search_query",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Search Query (e.g. Restaurants in Mumbai)"
+  },
+  {
+   "fieldname": "target_quantity",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Target Quantity",
+   "default": "100"
+  },
+  {
+   "fieldname": "qualification_prompt",
+   "fieldtype": "Text",
+   "label": "AI Qualification Prompt (Leave blank for no filtering)"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nPending\nScraping\nAnalyzing\nCompleted\nFailed",
+   "default": "Draft"
+  }
+ ],
+ "issingle": 0,
+ "modified": "2024-06-10 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "CallPilot AI",
+ "name": "Lead Finder Campaign",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "custom": 0,
+ "autoname": "format:CAMPAIGN-{YYYY}-{MM}-{####}"
+}

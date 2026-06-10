@@ -1,0 +1,57 @@
+{
+ "actions": [],
+ "creation": "2024-06-10 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "scraper_engine",
+  "apify_api_key",
+  "llm_provider",
+  "llm_api_key"
+ ],
+ "fields": [
+  {
+   "fieldname": "scraper_engine",
+   "fieldtype": "Select",
+   "label": "Scraper Engine",
+   "options": "Apify\nBuilt-in Python",
+   "default": "Apify"
+  },
+  {
+   "fieldname": "apify_api_key",
+   "fieldtype": "Password",
+   "label": "Apify API Key"
+  },
+  {
+   "fieldname": "llm_provider",
+   "fieldtype": "Select",
+   "label": "LLM Provider",
+   "options": "Google Gemini\nOpenAI\nOpenRouter",
+   "default": "Google Gemini"
+  },
+  {
+   "fieldname": "llm_api_key",
+   "fieldtype": "Password",
+   "label": "LLM API Key"
+  }
+ ],
+ "issingle": 1,
+ "modified": "2024-06-10 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "CallPilot AI",
+ "name": "Lead Finder Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "custom": 0
+}
