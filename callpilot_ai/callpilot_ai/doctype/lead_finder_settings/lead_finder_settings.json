@@ -1,4 +1,4 @@
-{
+﻿{
     "actions":  [
 
                 ],
@@ -19,7 +19,7 @@
                        "fieldname":  "scraper_engine",
                        "fieldtype":  "Select",
                        "label":  "Scraper Engine",
-                       "options":  "Apify\nBuilt-in Python",
+                       "options":  "Apify",
                        "default":  "Apify"
                    },
                    {
