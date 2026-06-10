@@ -1,6 +1,6 @@
-frappe.listview_settings['Lead'] = {
+﻿frappe.listview_settings['Lead'] = {
     onload: function(listview) {
-        listview.page.add_action_item(__("??? Call via Bolna AI"), function() {
+        listview.page.add_action_item(__("CallPilot AI Voice"), function() {
             const selected = listview.get_checked_items();
             if (selected.length === 0) return;
             
@@ -11,7 +11,7 @@ frappe.listview_settings['Lead'] = {
                 args: { lead_names: lead_names },
                 callback: function(r) {
                     if (!r.exc) {
-                        frappe.msgprint(__("Bolna AI calling job queued for " + selected.length + " leads."));
+                        frappe.msgprint(__("CallPilot AI Voice job queued for " + selected.length + " leads."));
                         listview.clear_checked_items();
                     }
                 }
@@ -19,3 +19,4 @@ frappe.listview_settings['Lead'] = {
         });
     }
 };
+

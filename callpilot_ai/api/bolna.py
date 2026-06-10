@@ -1,4 +1,4 @@
-import frappe
+﻿import frappe
 import requests
 import json
 
@@ -25,7 +25,7 @@ def process_bulk_calls(lead_names):
         phone = lead.mobile_no or lead.phone
         
         if not phone:
-            lead.add_comment("Comment", text="Bolna AI attempted to call, but no phone number exists.")
+            lead.add_comment("Comment", text="CallPilot AI Voice attempted to call, but no phone number exists.")
             continue
             
         payload = {
@@ -37,9 +37,10 @@ def process_bulk_calls(lead_names):
             res = requests.post("https://api.bolna.dev/call", json=payload, headers=headers)
             
             if res.status_code == 200:
-                lead.add_comment("Comment", text=f"**Bolna AI Outbound Call Initiated!** Dialing {phone}...")
+                lead.add_comment("Comment", text=f"**CallPilot AI Voice Call Initiated!** Dialing {phone}...")
             else:
-                lead.add_comment("Comment", text=f"**Bolna API Error:** {res.text}")
+                lead.add_comment("Comment", text=f"**CallPilot AI Voice Error:** {res.text}")
                 
         except Exception as e:
             frappe.log_error(title=f"Bolna Call Failed for {name}", message=str(e))
+
