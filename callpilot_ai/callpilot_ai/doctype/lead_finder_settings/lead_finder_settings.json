@@ -19,7 +19,7 @@
   },
   {
    "fieldname": "apify_api_key",
-   "fieldtype": "Password",
+   "fieldtype": "Small Text",
    "label": "Apify API Key"
   },
   {
@@ -31,7 +31,7 @@
   },
   {
    "fieldname": "llm_api_key",
-   "fieldtype": "Password",
+   "fieldtype": "Small Text",
    "label": "LLM API Key"
   }
  ],
