@@ -71,7 +71,7 @@ def run_apify_linkedin_scraper(query, limit, api_key):
     if not api_key:
         raise Exception("Apify API Key is missing in Settings.")
         
-    url = f"https://api.apify.com/v2/acts/bebity~linkedin-scraper/runs?token={api_key}"
+    url = f"https://api.apify.com/v2/acts/curious_coder~linkedin-company-scraper/runs?token={api_key}"
     payload = {"search": [query], "type": "company", "limit": limit}
     run_res = requests.post(url, json=payload).json()
     
