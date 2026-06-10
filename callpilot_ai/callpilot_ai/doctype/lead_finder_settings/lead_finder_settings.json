@@ -19,7 +19,7 @@
                        "fieldname":  "scraper_engine",
                        "fieldtype":  "Select",
                        "label":  "Scraper Engine",
-                       "options":  "Apify",
+                       "options":  "Apify\nDesktop Scraper",
                        "default":  "Apify"
                    },
                    {
