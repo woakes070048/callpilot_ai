@@ -8,6 +8,7 @@ def trigger_scrape(campaign_name):
         "callpilot_ai.api.scraper.run_scraper",
         queue="default",
         timeout=3600,
+        enqueue_after_commit=True,
         campaign_name=campaign_name
     )
     return "Scraping Job Queued"
