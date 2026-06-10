@@ -24,7 +24,12 @@ def run_scraper(campaign_name):
     
     try:
         if settings.scraper_engine == "Apify":
-            scraped_leads = run_apify_scraper(campaign.search_query, campaign.target_quantity, settings.apify_api_key)
+            source = settings.apify_source_platform
+            if source == "LinkedIn":
+                scraped_leads = run_apify_linkedin_scraper(campaign.search_query, campaign.target_quantity, settings.apify_api_key)
+            else:
+                # Default to Google Maps
+                scraped_leads = run_apify_scraper(campaign.search_query, campaign.target_quantity, settings.apify_api_key)
         else:
             scraped_leads = run_builtin_scraper(campaign.search_query, campaign.target_quantity)
             
@@ -75,14 +80,55 @@ def run_apify_scraper(query, limit, api_key):
             })
     return leads
 
-def run_builtin_scraper(query, limit):
-    # Nominatim API strictly blocks servers without valid keys. 
-    # For testing without Apify, we will generate high-quality realistic dummy leads based on your query!
+def run_apify_linkedin_scraper(query, limit, api_key):
+    if not api_key:
+        raise Exception("Apify API Key is missing in Settings.")
+        
+    # Using a standard LinkedIn company search actor
+    url = f"https://api.apify.com/v2/acts/bebity~linkedin-scraper/runs?token={api_key}"
+    payload = {"search": [query], "type": "company", "limit": limit}
+    run_res = requests.post(url, json=payload).json()
+    
+    if "error" in run_res:
+        raise Exception(f"Apify Error: {run_res['error']['message']}")
+        
+    run_id = run_res.get("data", {}).get("id")
+    dataset_id = run_res.get("data", {}).get("defaultDatasetId")
+    
+    while True:
+        status_url = f"https://api.apify.com/v2/actor-runs/{run_id}?token={api_key}"
+        status_res = requests.get(status_url).json()
+        status = status_res.get("data", {}).get("status")
+        if status in ["SUCCEEDED", "FAILED", "ABORTED"]:
+            break
+        time.sleep(10)
+        
+    dataset_url = f"https://api.apify.com/v2/datasets/{dataset_id}/items?token={api_key}"
+    items = requests.get(dataset_url).json()
     
     leads = []
+    for item in items:
+        # STRICT PHONE NUMBER RULE:
+        # LinkedIn often hides phone numbers. If there is no phone number, we immediately discard it!
+        phone = item.get("phone") or item.get("phoneNumber") or item.get("contactInfo", {}).get("phone")
+        if not phone:
+            continue
+            
+        leads.append({
+            "company_name": item.get("name") or item.get("companyName") or "Unknown LinkedIn Company",
+            "phone": phone,
+            "website": item.get("website") or item.get("websiteUrl")
+        })
+        
+    if not leads:
+        raise Exception("LinkedIn Scraper finished, but 0 companies had public phone numbers! Try Google Maps instead.")
+        
+    return leads
+
+def run_builtin_scraper(query, limit):
+    # Mock Data Generator for Free Testing
+    leads = []
     adjectives = ["Global", "Apex", "Nova", "Prime", "Elite", "Summit", "Nexus", "Quantum"]
-    
-    # Extract keyword from query (e.g., "Hospital Noida" -> "Hospital")
     keyword = query.split(" ")[0].capitalize() if query else "Business"
     
     for i in range(min(int(limit), 10)):
