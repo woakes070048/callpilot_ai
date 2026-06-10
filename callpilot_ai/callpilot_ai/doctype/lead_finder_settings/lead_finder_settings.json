@@ -26,7 +26,7 @@
                        "depends_on":  "eval:doc.scraper_engine==\u0027Apify\u0027",
                        "default":  "Google Maps",
                        "fieldtype":  "Select",
-                       "options":  "Google Maps\nLinkedIn"
+                       "options":  "Google Maps\nLinkedIn\nYelp\nYellowPages"
                    },
                    {
                        "fieldname":  "apify_api_key",

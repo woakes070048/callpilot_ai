@@ -25,8 +25,13 @@ def run_scraper(campaign_name):
     try:
         if settings.scraper_engine == "Apify":
             source = settings.apify_source_platform
+            
             if source == "LinkedIn":
                 scraped_leads = run_apify_linkedin_scraper(campaign.search_query, campaign.target_quantity, settings.apify_api_key)
+            elif source == "Yelp":
+                scraped_leads = run_apify_yelp_scraper(campaign.search_query, campaign.target_quantity, settings.apify_api_key)
+            elif source == "YellowPages":
+                scraped_leads = run_apify_yellowpages_scraper(campaign.search_query, campaign.target_quantity, settings.apify_api_key)
             else:
                 # Default to Google Maps
                 scraped_leads = run_apify_scraper(campaign.search_query, campaign.target_quantity, settings.apify_api_key)
@@ -45,9 +50,11 @@ def run_scraper(campaign_name):
         frappe.db.commit()
         frappe.log_error(title="Scraper Error", message=str(e))
 
+
 def run_apify_scraper(query, limit, api_key):
+    # GOOGLE MAPS SCRAPER
     if not api_key:
-        raise Exception("Apify API Key is missing in Settings. Please add it or switch to Built-in Scraper.")
+        raise Exception("Apify API Key is missing in Settings.")
         
     url = f"https://api.apify.com/v2/acts/compass~google-maps-scraper/runs?token={api_key}"
     payload = {"searchStringsArray": [query], "maxCrawledPlacesPerSearch": limit, "language": "en"}
@@ -56,6 +63,70 @@ def run_apify_scraper(query, limit, api_key):
     if "error" in run_res:
         raise Exception(f"Apify Error: {run_res['error']['message']}")
         
+    return wait_and_fetch_dataset(run_res, api_key, extract_google_maps_leads)
+
+
+def run_apify_linkedin_scraper(query, limit, api_key):
+    # LINKEDIN COMPANY SCRAPER
+    if not api_key:
+        raise Exception("Apify API Key is missing in Settings.")
+        
+    url = f"https://api.apify.com/v2/acts/bebity~linkedin-scraper/runs?token={api_key}"
+    payload = {"search": [query], "type": "company", "limit": limit}
+    run_res = requests.post(url, json=payload).json()
+    
+    if "error" in run_res:
+        raise Exception(f"Apify Error: {run_res['error']['message']}")
+        
+    return wait_and_fetch_dataset(run_res, api_key, extract_linkedin_leads)
+
+
+def run_apify_yelp_scraper(query, limit, api_key):
+    # YELP SCRAPER
+    if not api_key:
+        raise Exception("Apify API Key is missing in Settings.")
+        
+    # We use a popular yelp scraper actor. Note: The exact actor ID can be modified here if needed.
+    url = f"https://api.apify.com/v2/acts/epctex~yelp-scraper/runs?token={api_key}"
+    
+    # Split query into search term and location if possible (e.g. "Plumbers in Austin" -> search: Plumbers, location: Austin)
+    parts = query.lower().split(" in ")
+    search = parts[0] if parts else query
+    location = parts[1] if len(parts) > 1 else "United States"
+    
+    payload = {"searchTerms": [search], "locations": [location], "maxItems": limit}
+    run_res = requests.post(url, json=payload).json()
+    
+    if "error" in run_res:
+        raise Exception(f"Apify Error: {run_res['error']['message']}")
+        
+    return wait_and_fetch_dataset(run_res, api_key, extract_yelp_leads)
+
+
+def run_apify_yellowpages_scraper(query, limit, api_key):
+    # YELLOWPAGES SCRAPER
+    if not api_key:
+        raise Exception("Apify API Key is missing in Settings.")
+        
+    url = f"https://api.apify.com/v2/acts/epctex~yellow-pages-scraper/runs?token={api_key}"
+    
+    parts = query.lower().split(" in ")
+    search = parts[0] if parts else query
+    location = parts[1] if len(parts) > 1 else "United States"
+    
+    payload = {"searchTerms": [search], "locations": [location], "maxItems": limit}
+    run_res = requests.post(url, json=payload).json()
+    
+    if "error" in run_res:
+        raise Exception(f"Apify Error: {run_res['error']['message']}")
+        
+    return wait_and_fetch_dataset(run_res, api_key, extract_yellowpages_leads)
+
+
+# --- HELPER FUNCTIONS ---
+
+def wait_and_fetch_dataset(run_res, api_key, extract_func):
+    """Wait for the Apify Actor to finish and return the parsed leads."""
     run_id = run_res.get("data", {}).get("id")
     dataset_id = run_res.get("data", {}).get("defaultDatasetId")
     
@@ -70,6 +141,14 @@ def run_apify_scraper(query, limit, api_key):
     dataset_url = f"https://api.apify.com/v2/datasets/{dataset_id}/items?token={api_key}"
     items = requests.get(dataset_url).json()
     
+    leads = extract_func(items)
+    if not leads:
+        raise Exception("Scraper finished, but 0 leads had public phone numbers! (Strict Phone Rule applied)")
+        
+    return leads
+
+
+def extract_google_maps_leads(items):
     leads = []
     for item in items:
         if item.get("phone") or item.get("phoneUnformatted"):
@@ -80,50 +159,48 @@ def run_apify_scraper(query, limit, api_key):
             })
     return leads
 
-def run_apify_linkedin_scraper(query, limit, api_key):
-    if not api_key:
-        raise Exception("Apify API Key is missing in Settings.")
-        
-    # Using a standard LinkedIn company search actor
-    url = f"https://api.apify.com/v2/acts/bebity~linkedin-scraper/runs?token={api_key}"
-    payload = {"search": [query], "type": "company", "limit": limit}
-    run_res = requests.post(url, json=payload).json()
-    
-    if "error" in run_res:
-        raise Exception(f"Apify Error: {run_res['error']['message']}")
-        
-    run_id = run_res.get("data", {}).get("id")
-    dataset_id = run_res.get("data", {}).get("defaultDatasetId")
-    
-    while True:
-        status_url = f"https://api.apify.com/v2/actor-runs/{run_id}?token={api_key}"
-        status_res = requests.get(status_url).json()
-        status = status_res.get("data", {}).get("status")
-        if status in ["SUCCEEDED", "FAILED", "ABORTED"]:
-            break
-        time.sleep(10)
-        
-    dataset_url = f"https://api.apify.com/v2/datasets/{dataset_id}/items?token={api_key}"
-    items = requests.get(dataset_url).json()
-    
+
+def extract_linkedin_leads(items):
     leads = []
     for item in items:
-        # STRICT PHONE NUMBER RULE:
-        # LinkedIn often hides phone numbers. If there is no phone number, we immediately discard it!
         phone = item.get("phone") or item.get("phoneNumber") or item.get("contactInfo", {}).get("phone")
         if not phone:
-            continue
-            
+            continue # Strict Phone Rule
         leads.append({
             "company_name": item.get("name") or item.get("companyName") or "Unknown LinkedIn Company",
             "phone": phone,
             "website": item.get("website") or item.get("websiteUrl")
         })
-        
-    if not leads:
-        raise Exception("LinkedIn Scraper finished, but 0 companies had public phone numbers! Try Google Maps instead.")
-        
     return leads
+
+
+def extract_yelp_leads(items):
+    leads = []
+    for item in items:
+        phone = item.get("phone") or item.get("displayPhone") or item.get("bizPhone")
+        if not phone:
+            continue # Strict Phone Rule
+        leads.append({
+            "company_name": item.get("name") or item.get("bizName") or "Unknown Yelp Business",
+            "phone": phone,
+            "website": item.get("website") or item.get("bizWebsite")
+        })
+    return leads
+
+
+def extract_yellowpages_leads(items):
+    leads = []
+    for item in items:
+        phone = item.get("phone") or item.get("telephone")
+        if not phone:
+            continue # Strict Phone Rule
+        leads.append({
+            "company_name": item.get("name") or item.get("businessName") or "Unknown YP Business",
+            "phone": phone,
+            "website": item.get("website") or item.get("url")
+        })
+    return leads
+
 
 def run_builtin_scraper(query, limit):
     # Mock Data Generator for Free Testing
@@ -142,5 +219,4 @@ def run_builtin_scraper(query, limit):
             "phone": phone,
             "website": website
         })
-        
     return leads
