@@ -7,7 +7,10 @@ def trigger_bulk_calls(lead_names):
     if isinstance(lead_names, str):
         lead_names = json.loads(lead_names)
         
-    frappe.enqueue("callpilot_ai.api.bolna.process_bulk_calls", queue="default", timeout=3600, lead_names=lead_names)
+    if len(lead_names) <= 5:
+        process_bulk_calls(lead_names)
+    else:
+        frappe.enqueue("callpilot_ai.api.bolna.process_bulk_calls", queue="short", timeout=3600, lead_names=lead_names)
 
 def process_bulk_calls(lead_names):
     settings = frappe.get_single("Lead Finder Settings")
