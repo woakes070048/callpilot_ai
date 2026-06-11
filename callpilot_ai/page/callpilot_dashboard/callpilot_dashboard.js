@@ -5,7 +5,7 @@
         single_column: true
     });
     
-    .appendTo(page.main);
+    $(frappe.render_template("callpilot_dashboard", {})).appendTo(page.main);
     
     frappe.call({
         method: "callpilot_ai.page.callpilot_dashboard.callpilot_dashboard.get_dashboard_data",
