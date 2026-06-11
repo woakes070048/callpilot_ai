@@ -11,21 +11,25 @@ def trigger_bulk_calls(lead_names):
 
 def process_bulk_calls(lead_names):
     settings = frappe.get_single("Lead Finder Settings")
-    if not settings.bolna_api_key or not settings.bolna_agent_id:
-        frappe.log_error(title="Bolna Error", message="Bolna API Key or Agent ID is missing in settings.")
-        return
-
-    headers = {
-        "Authorization": f"Bearer {settings.bolna_api_key}",
-        "Content-Type": "application/json"
-    }
-
+    
     for name in lead_names:
         lead = frappe.get_doc("Lead", name)
+        
+        if not settings.bolna_api_key or not settings.bolna_agent_id:
+            lead.add_comment("Comment", text="**CallPilot AI Error:** Bolna API Key or Agent ID is missing in your Settings!")
+            frappe.db.commit()
+            continue
+
+        headers = {
+            "Authorization": f"Bearer {settings.bolna_api_key}",
+            "Content-Type": "application/json"
+        }
+
         phone = lead.mobile_no or lead.phone
         
         if not phone:
-            lead.add_comment("Comment", text="CallPilot AI Voice attempted to call, but no phone number exists.")
+            lead.add_comment("Comment", text="**CallPilot AI Error:** Attempted to call, but no phone number exists.")
+            frappe.db.commit()
             continue
             
         payload = {
@@ -41,6 +45,9 @@ def process_bulk_calls(lead_names):
             else:
                 lead.add_comment("Comment", text=f"**CallPilot AI Voice Error:** {res.text}")
                 
+            frappe.db.commit()
+            
         except Exception as e:
+            lead.add_comment("Comment", text=f"**CallPilot AI Server Error:** {str(e)}")
+            frappe.db.commit()
             frappe.log_error(title=f"Bolna Call Failed for {name}", message=str(e))
-
