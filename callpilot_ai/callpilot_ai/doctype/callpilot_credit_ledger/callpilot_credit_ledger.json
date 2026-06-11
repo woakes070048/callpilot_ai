@@ -1,0 +1,60 @@
+﻿{
+    "actions": [],
+    "creation": "2024-06-11 12:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "client",
+        "transaction_type",
+        "amount",
+        "reason"
+    ],
+    "fields": [
+        {
+            "fieldname": "client",
+            "fieldtype": "Link",
+            "label": "Client",
+            "options": "User",
+            "reqd": 1
+        },
+        {
+            "fieldname": "transaction_type",
+            "fieldtype": "Select",
+            "label": "Transaction Type",
+            "options": "Credit\nDebit",
+            "reqd": 1
+        },
+        {
+            "fieldname": "amount",
+            "fieldtype": "Currency",
+            "label": "Amount",
+            "reqd": 1
+        },
+        {
+            "fieldname": "reason",
+            "fieldtype": "Data",
+            "label": "Reason",
+            "reqd": 1
+        }
+    ],
+    "issingle": 0,
+    "modified": "2024-06-11 12:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "CallPilot AI",
+    "name": "CallPilot Credit Ledger",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "print": 1,
+            "read": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "custom": 0,
+    "autoname": "format:CREDIT-{YYYY}-{MM}-{#####}"
+}
