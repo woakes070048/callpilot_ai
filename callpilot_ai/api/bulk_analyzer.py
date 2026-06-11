@@ -2,7 +2,6 @@
 import requests
 from bs4 import BeautifulSoup
 import json
-from callpilot_ai.api.analyzer import get_llm_decision
 
 @frappe.whitelist()
 def trigger_bulk_analysis(lead_names, ai_prompt):
@@ -33,11 +32,25 @@ def process_bulk_analysis(lead_names, ai_prompt):
             soup = BeautifulSoup(res.text, 'html.parser')
             text_content = soup.get_text(separator=' ', strip=True)[:3000] 
             
-            prompt = f"Website text: {text_content}\n\nQuestion: {ai_prompt}\n\nReply with exactly two words: 'YES' or 'NO', followed by a hyphen and a one-sentence explanation."
+            full_prompt = f"Website text: {text_content}\n\nQuestion: {ai_prompt}\n\nReply with exactly two words: 'YES' or 'NO', followed by a hyphen and a one-sentence explanation."
             
-            answer = get_llm_decision(prompt, settings)
+            answer = "NO - Could not parse"
             
-            if answer.strip().upper().startswith("YES"):
+            if settings.llm_provider == "Google Gemini":
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={settings.llm_api_key}"
+                payload = {"contents": [{"parts": [{"text": full_prompt}]}]}
+                headers = {"Content-Type": "application/json"}
+                res = requests.post(url, headers=headers, json=payload).json()
+                answer = res["candidates"][0]["content"]["parts"][0]["text"].strip()
+                
+            elif settings.llm_provider == "OpenAI":
+                url = "https://api.openai.com/v1/chat/completions"
+                payload = {"model": "gpt-4o-mini", "messages": [{"role": "user", "content": full_prompt}]}
+                headers = {"Authorization": f"Bearer {settings.llm_api_key}", "Content-Type": "application/json"}
+                res = requests.post(url, headers=headers, json=payload).json()
+                answer = res["choices"][0]["message"]["content"].strip()
+            
+            if answer.upper().startswith("YES"):
                 lead.status = "Qualified"
                 lead.add_comment("Comment", text=f"**AI Qualified:** {answer}")
             else:
