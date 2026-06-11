@@ -1,4 +1,4 @@
-﻿frappe.listview_settings['Lead'] = {
+frappe.listview_settings['Lead'] = {
     onload: function(listview) {
         listview.page.add_action_item("<b>📞 CallPilot AI Voice</b>", function() {
             const selected = listview.get_checked_items();

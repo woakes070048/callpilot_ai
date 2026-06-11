@@ -1,4 +1,4 @@
-﻿import json
+import json
 
 path = 'callpilot_ai/callpilot_ai/doctype/lead_finder_settings/lead_finder_settings.json'
 with open(path, 'r', encoding='utf-8') as f:

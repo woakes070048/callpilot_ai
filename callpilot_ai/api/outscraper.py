@@ -1,4 +1,4 @@
-﻿import requests
+import requests
 
 def run_outscraper(query, limit, api_key):
     if not api_key:

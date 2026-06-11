@@ -1,4 +1,4 @@
-﻿import frappe
+import frappe
 import requests
 
 def analyze_call_transcript(lead_name, transcript):

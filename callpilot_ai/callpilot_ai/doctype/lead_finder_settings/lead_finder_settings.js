@@ -1,4 +1,4 @@
-﻿frappe.ui.form.on('Lead Finder Settings', {
+frappe.ui.form.on('Lead Finder Settings', {
     scraper_engine: function(frm) {
         if (frm.doc.scraper_engine === 'Desktop Scraper') {
             frappe.msgprint({

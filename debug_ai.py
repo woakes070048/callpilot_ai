@@ -1,4 +1,4 @@
-﻿import frappe
+import frappe
 
 frappe.init(site="nexgenerp.frappe.cloud")
 frappe.connect()

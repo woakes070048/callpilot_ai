@@ -1,4 +1,4 @@
-﻿import frappe
+import frappe
 import requests
 import json
 
