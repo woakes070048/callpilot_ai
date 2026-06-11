@@ -9,7 +9,11 @@
                 args: { lead_names: lead_names },
                 callback: function(r) {
                     if (!r.exc) {
-                        frappe.msgprint(__("CallPilot AI Voice job queued for " + selected.length + " leads."));
+                        if (r.message && r.message !== "queued") {
+                            frappe.msgprint({title: 'CallPilot AI', indicator: 'blue', message: r.message});
+                        } else {
+                            frappe.msgprint(__("CallPilot AI Voice job queued for " + selected.length + " leads."));
+                        }
                         listview.clear_checked_items();
                     }
                 }
