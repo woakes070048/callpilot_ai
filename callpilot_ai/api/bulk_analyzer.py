@@ -26,8 +26,13 @@ def process_bulk_analysis(lead_names, ai_prompt):
             lead.save(ignore_permissions=True)
             continue
             
+        website_url = lead.website.strip()
+        if not website_url.startswith('http://') and not website_url.startswith('https://'):
+            website_url = 'https://' + website_url
+            
         try:
-            res = requests.get(lead.website, timeout=10)
+            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+            res = requests.get(website_url, timeout=10, headers=headers)
             res.raise_for_status()
             soup = BeautifulSoup(res.text, 'html.parser')
             text_content = soup.get_text(separator=' ', strip=True)[:3000] 
@@ -63,3 +68,4 @@ def process_bulk_analysis(lead_names, ai_prompt):
             lead.status = "Do Not Contact"
             lead.add_comment("Comment", text=f"**AI Error:** Failed to scrape website ({str(e)}).")
             lead.save(ignore_permissions=True)
+
