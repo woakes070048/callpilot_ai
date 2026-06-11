@@ -1,4 +1,4 @@
-{
+﻿{
     "actions":  [
 
                 ],
@@ -9,6 +9,8 @@
                         "scraper_engine",
                         "apify_source_platform",
                         "apify_api_key",
+                        "outscraper_api_key",
+                        "scraper_markup_margin",
                         "llm_provider",
                         "llm_api_key",
                         "bolna_api_key",
@@ -19,13 +21,13 @@
                        "fieldname":  "scraper_engine",
                        "fieldtype":  "Select",
                        "label":  "Scraper Engine",
-                       "options":  "Apify\nDesktop Scraper",
+                       "options":  "Apify\nOutscraper\nDesktop Scraper",
                        "default":  "Apify"
                    },
                    {
                        "fieldname":  "apify_source_platform",
                        "label":  "Apify Source Platform",
-                       "depends_on":  "eval:doc.scraper_engine==\u0027Apify\u0027",
+                       "depends_on":  "eval:doc.scraper_engine=='Apify'",
                        "default":  "Google Maps",
                        "fieldtype":  "Select",
                        "options":  "Google Maps\nLinkedIn\nYelp\nYellowPages"
@@ -34,6 +36,19 @@
                        "fieldname":  "apify_api_key",
                        "fieldtype":  "Small Text",
                        "label":  "Apify API Key"
+                   },
+                   {
+                       "fieldname":  "outscraper_api_key",
+                       "fieldtype":  "Small Text",
+                       "label":  "Outscraper API Key",
+                       "depends_on":  "eval:doc.scraper_engine=='Outscraper'"
+                   },
+                   {
+                       "fieldname":  "scraper_markup_margin",
+                       "fieldtype":  "Percent",
+                       "label":  "Scraper Markup Margin (%)",
+                       "description":  "Enter the percentage markup to charge your clients for lead scraping (e.g., 20 for a 20% profit margin).",
+                       "default":  "20"
                    },
                    {
                        "fieldname":  "llm_provider",
@@ -59,7 +74,7 @@
                    }
                ],
     "issingle":  1,
-    "modified":  "2024-06-10 12:00:00.000000",
+    "modified":  "2024-06-11 12:00:00.000000",
     "modified_by":  "Administrator",
     "module":  "CallPilot AI",
     "name":  "Lead Finder Settings",
