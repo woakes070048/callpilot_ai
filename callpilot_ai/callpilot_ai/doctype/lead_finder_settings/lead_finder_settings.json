@@ -8,6 +8,7 @@
         "apify_source_platform",
         "apify_api_key",
         "outscraper_api_key",
+        "enable_internal_credit_billing",
         "scraper_markup_margin",
         "llm_provider",
         "llm_api_key",
@@ -42,11 +43,19 @@
             "depends_on": "eval:doc.scraper_engine=='Outscraper'"
         },
         {
+            "fieldname": "enable_internal_credit_billing",
+            "fieldtype": "Check",
+            "label": "Enable Internal Credit Billing",
+            "description": "Check this box to enforce credit deductions and margin markups for users on this site. Uncheck this if you are selling this app on Frappe Cloud Marketplace and users bring their own API keys.",
+            "default": "0"
+        },
+        {
             "fieldname": "scraper_markup_margin",
             "fieldtype": "Percent",
             "label": "Scraper Markup Margin (%)",
             "description": "Enter the percentage markup to charge your clients for lead scraping (e.g., 20 for a 20% profit margin).",
-            "default": "20"
+            "default": "20",
+            "depends_on": "eval:doc.enable_internal_credit_billing==1"
         },
         {
             "fieldname": "llm_provider",

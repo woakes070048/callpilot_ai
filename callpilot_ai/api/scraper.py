@@ -47,7 +47,7 @@ def run_scraper(campaign_name):
     scraped_leads = []
     
     try:
-        if settings.scraper_engine in ["Apify", "Outscraper"]:
+        if settings.enable_internal_credit_billing and settings.scraper_engine in ["Apify", "Outscraper"]:
             check_and_deduct_credits(settings.scraper_engine, campaign.target_quantity, campaign.owner)
             
         if settings.scraper_engine == "Outscraper":
